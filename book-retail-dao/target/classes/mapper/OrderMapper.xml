@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.north.mapper.OrderMapper">
+    <sql id="commonSelect">
+        user_id,order_price
+    </sql>
+
+    <sql id="itemCommonSelect">
+        orderId,productId,price
+    </sql>
+
+    <select id="queryOrder" resultType="com.north.dto.OrderMasterDto">
+        select id,<include refid="commonSelect"></include>
+        from a_order_master where is_delete=0
+        <if test="userId!=null"> and user_id=#{userId}</if>
+    </select>
+
+    <resultMap id="PackageItemMap" type="com.north.entity.OrderMaster">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="order_price" property="orderPrice"/>
+    </resultMap>
+
+    <insert id="addOrderMaster" keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+        insert into a_order_master
+        (<include refid="commonSelect"></include>)
+        values
+        (#{userId},#{orderPrice})
+    </insert>
+
+    <insert id="addOrderItem">
+        insert into a_order_item
+        (<include refid="itemCommonSelect"></include>)
+        values
+        <foreach collection='itemList' item='item' index='index' separator=','>
+            (#{item.orderId},#{item.productId},#{item.price})
+        </foreach>
+    </insert>
+
+
+</mapper>
